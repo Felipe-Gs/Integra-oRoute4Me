@@ -1,0 +1,155 @@
+<div style="text-align:center">
+  <h1>{{ title }}</h1>
+
+  <!-- Formulário para Criar Pedido -->
+  <form (ngSubmit)="createOrder()">
+    <div>
+      <h3>Endereço de Origem</h3>
+      <label for="originAddress">Endereço</label>
+      <input type="text" id="originAddress" [(ngModel)]="originAddress.address" name="originAddress" required>
+
+      <label for="originNumber">Número</label>
+      <input type="text" id="originNumber" [(ngModel)]="originAddress.number" name="originNumber" required>
+
+      <label for="originCity">Cidade</label>
+      <input type="text" id="originCity" [(ngModel)]="originAddress.city" name="originCity" required>
+
+      <label for="originState">Estado</label>
+      <input type="text" id="originState" [(ngModel)]="originAddress.state" name="originState" required>
+
+      <label for="originCountry">País</label>
+      <input type="text" id="originCountry" [(ngModel)]="originAddress.country" name="originCountry" required>
+    </div>
+
+    <div>
+      <h3>Endereço de Destino</h3>
+      <label for="destinationAddress">Endereço</label>
+      <input type="text" id="destinationAddress" [(ngModel)]="destinationAddress.address" name="destinationAddress" required>
+
+      <label for="destinationNumber">Número</label>
+      <input type="text" id="destinationNumber" [(ngModel)]="destinationAddress.number" name="destinationNumber" required>
+
+      <label for="destinationCity">Cidade</label>
+      <input type="text" id="destinationCity" [(ngModel)]="destinationAddress.city" name="destinationCity" required>
+
+      <label for="destinationState">Estado</label>
+      <input type="text" id="destinationState" [(ngModel)]="destinationAddress.state" name="destinationState" required>
+
+      <label for="destinationCountry">País</label>
+      <input type="text" id="destinationCountry" [(ngModel)]="destinationAddress.country" name="destinationCountry" required>
+    </div>
+
+    <div>
+      <h3>Informações de Contato</h3>
+      <label for="firstName">Nome</label>
+      <input type="text" id="firstName" [(ngModel)]="contactInfos.first_name" name="firstName" required>
+
+      <label for="secondName">Sobrenome</label>
+      <input type="text" id="secondName" [(ngModel)]="contactInfos.second_name" name="secondName" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" [(ngModel)]="contactInfos.email" name="email" required>
+
+      <label for="phone">Telefone</label>
+      <input type="tel" id="phone" [(ngModel)]="contactInfos.phone" name="phone" required>
+    </div>
+
+    <div>
+      <h3>Informações de Carga</h3>
+      <label for="pieces">Peças</label>
+      <input type="number" id="pieces" [(ngModel)]="loadInfos.pieces" name="pieces" required>
+    </div>
+
+    <div>
+      <h3>Janela de Tempo</h3>
+      <label for="firstWindowStart">Início da Janela</label>
+      <input type="time" id="firstWindowStart" [(ngModel)]="timesInfos.first_window_time_start" name="firstWindowStart" required>
+
+      <label for="firstWindowEnd">Fim da Janela</label>
+      <input type="time" id="firstWindowEnd" [(ngModel)]="timesInfos.first_window_time_end" name="firstWindowEnd" required>
+
+      <label for="secondWindowStart">Início da Segunda Janela</label>
+      <input type="time" id="secondWindowStart" [(ngModel)]="timesInfos.second_windows_time_start" name="secondWindowStart" required>
+
+      <label for="secondWindowEnd">Fim da Segunda Janela</label>
+      <input type="time" id="secondWindowEnd" [(ngModel)]="timesInfos.second_windows_time_end" name="secondWindowEnd" required>
+    </div>
+
+    <div *ngIf="latitude !== null && longitude !== null" style="margin-top: 20px;">
+      <h3>Coordenadas do Endereço</h3>
+      <p>Latitude: {{ latitude }}</p>
+      <p>Longitude: {{ longitude }}</p>
+    </div>
+
+    <button type="submit">Criar Pedido</button>
+  </form>
+
+  <hr>
+
+  <!-- Criar Rota -->
+  <div>
+    <h2>Criar Rota</h2>
+    <form (ngSubmit)="createRoute()">
+      <div>
+        <label for="routeName">Nome da Rota</label>
+        <input type="text" id="routeName" [(ngModel)]="routeInfos.route_name" name="routeName" required>
+      </div>
+
+      <div>
+        <label for="optimize">Otimizar por</label>
+        <select id="optimize" [(ngModel)]="routeInfos.optimize" name="optimize">
+          <option value="Distance">Distância</option>
+          <option value="Time">Tempo</option>
+        </select>
+      </div>
+
+      <h3>Adicionar Endereço</h3>
+      <div>
+        <label for="routeAddress">Endereço</label>
+        <input type="text" id="routeAddress" [(ngModel)]="routeAddress" name="routeAddress">
+        <button type="button" (click)="finderLatitudeLongitude()">Geocodificar</button>
+        <button type="button" (click)="addAddress()">Adicionar Endereço</button>
+      </div>
+
+      <div *ngIf="addresses.length > 0">
+        <h4>Endereços Adicionados</h4>
+        <ul>
+          <li *ngFor="let addr of addresses">
+            {{ addr.address }} (Lat: {{ addr.lat }}, Lng: {{ addr.lng }}) - {{ addr.is_depot ? 'Depósito' : 'Parada' }}
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Configuração da Rota</h3>
+        <label for="routeDate">Data de Início</label>
+        <input type="date" id="routeDate" [(ngModel)]="routeInfos.route_date" name="routeDate" required>
+
+        <label for="routeTime">Hora de Início</label>
+        <input type="time" id="routeTime" [(ngModel)]="routeInfos.route_time" name="routeTime" required>
+      </div>
+
+      <button type="submit">Criar Rota</button>
+    </form>
+  </div>
+
+  <hr>
+
+  <!-- Geocodificação -->
+  <div>
+    <h2>Geocodificar Endereço</h2>
+    <form (ngSubmit)="finderLatitudeLongitude()">
+      <div>
+        <label for="geocodeAddress">Endereço</label>
+        <input type="text" id="geocodeAddress" [(ngModel)]="routeAddress" name="geocodeAddress" required>
+      </div>
+      <button type="submit">Geocodificar</button>
+    </form>
+
+    <div *ngIf="latitude !== null && longitude !== null" style="margin-top: 20px;">
+      <h3>Coordenadas do Endereço</h3>
+      <p>Latitude: {{ latitude }}</p>
+      <p>Longitude: {{ longitude }}</p>
+    </div>
+  </div>
+</div>
