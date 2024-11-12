@@ -176,6 +176,74 @@ app.put("/add_order_to_route", async (req, res) => {
    }
 });
 
+// verificar se o pedido está associado a rota
+app.get("/check_order_in_route", async (req, res) => {
+   const { optimization_problem_id, order_id } = req.body;
+
+   if (!optimization_problem_id || !order_id) {
+      return res.status(400).json({
+         message: "optimization_problem_id e order_id são obrigatórios",
+      });
+   }
+
+   try {
+      const apiUrl = `https://api.route4me.com/api.v4/optimization_problem.php?api_key=${apiKey}&optimization_problem_id=${optimization_problem_id}`;
+      const response = await axios.get(apiUrl);
+      const optimizationData = response.data;
+
+      // Verifica se o order_id está presente em alguma das rotas
+      let orderExists = false;
+      let routeData = null;
+
+      for (const route of optimizationData.routes) {
+         const routeResponse = await axios.get(
+            `https://api.route4me.com/api.v4/route.php?api_key=${apiKey}&route_id=${route.route_id}`
+         );
+         routeData = routeResponse.data;
+
+         if (
+            routeData.addresses.some(
+               (stop) => stop.order_id === parseInt(order_id)
+            )
+         ) {
+            orderExists = true;
+            break;
+         }
+      }
+
+      if (orderExists) {
+         res.json({
+            message: "Pedido está associado à rota.",
+            routeData,
+         });
+      } else {
+         res.json({
+            message: "Pedido não está associado à rota.",
+         });
+      }
+   } catch (error) {
+      console.error("Erro ao verificar pedido na rota:", error);
+
+      if (error.response) {
+         console.error("Resposta da API:", error.response.data);
+         const errorMessage = error.response.data.errors
+            ? error.response.data.errors.join(", ")
+            : "Erro desconhecido da API";
+         res.status(error.response.status).json({
+            message: errorMessage,
+         });
+      } else if (error.request) {
+         console.error("Nenhuma resposta recebida:", error.request);
+         res.status(500).json({ message: "Sem resposta da API do Route4Me" });
+      } else {
+         console.error("Erro ao configurar a requisição:", error.message);
+         res.status(500).json({
+            message: `Erro ao fazer requisição: ${error.message}`,
+         });
+      }
+   }
+});
+
 app.get("/orders", async (req, res) => {
    const { order_id } = req.query;
 
