@@ -176,6 +176,38 @@ app.put("/add_order_to_route", async (req, res) => {
    }
 });
 
+app.get("/orders", async (req, res) => {
+   const { order_id } = req.query;
+
+   if (!order_id) {
+      return res
+         .status(400)
+         .json({ message: "O parâmetro order_id é obrigatório" });
+   }
+
+   const apiUrl = `https://api.route4me.com/api.v4/order.php?api_key=${apiKey}&order_id=${order_id}`;
+
+   try {
+      const response = await axios.get(apiUrl);
+      res.json(response.data);
+   } catch (error) {
+      console.error("Erro ao buscar pedido(s):", error);
+
+      if (error.response) {
+         res.status(error.response.status).json({
+            message: error.response.data.message || "Erro desconhecido da API",
+            detalhes: error.response.data,
+         });
+      } else if (error.request) {
+         res.status(500).json({ message: "Sem resposta da API do Route4Me" });
+      } else {
+         res.status(500).json({
+            message: `Erro ao fazer requisição: ${error.message}`,
+         });
+      }
+   }
+});
+
 // Iniciar o servidor
 app.listen(port, () => {
    console.log(`Servidor rodando em http://localhost:${port}`);
