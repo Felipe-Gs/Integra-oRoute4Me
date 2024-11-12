@@ -1,9 +1,9 @@
-<div style="text-align:center">
+<div class="container">
   <h1>{{ title }}</h1>
 
   <!-- Formulário para Criar Pedido -->
-  <form (ngSubmit)="createOrder()">
-    <div>
+  <form (ngSubmit)="createOrder()" class="form">
+    <div class="form-section">
       <h3>Endereço de Origem</h3>
       <label for="originAddress">Endereço</label>
       <input type="text" id="originAddress" [(ngModel)]="originAddress.address" name="originAddress" required>
@@ -21,7 +21,7 @@
       <input type="text" id="originCountry" [(ngModel)]="originAddress.country" name="originCountry" required>
     </div>
 
-    <div>
+    <div class="form-section">
       <h3>Endereço de Destino</h3>
       <label for="destinationAddress">Endereço</label>
       <input type="text" id="destinationAddress" [(ngModel)]="destinationAddress.address" name="destinationAddress" required>
@@ -39,7 +39,7 @@
       <input type="text" id="destinationCountry" [(ngModel)]="destinationAddress.country" name="destinationCountry" required>
     </div>
 
-    <div>
+    <div class="form-section">
       <h3>Informações de Contato</h3>
       <label for="firstName">Nome</label>
       <input type="text" id="firstName" [(ngModel)]="contactInfos.first_name" name="firstName" required>
@@ -54,13 +54,13 @@
       <input type="tel" id="phone" [(ngModel)]="contactInfos.phone" name="phone" required>
     </div>
 
-    <div>
+    <div class="form-section">
       <h3>Informações de Carga</h3>
       <label for="pieces">Peças</label>
       <input type="number" id="pieces" [(ngModel)]="loadInfos.pieces" name="pieces" required>
     </div>
 
-    <div>
+    <div class="form-section">
       <h3>Janela de Tempo</h3>
       <label for="firstWindowStart">Início da Janela</label>
       <input type="time" id="firstWindowStart" [(ngModel)]="timesInfos.first_window_time_start" name="firstWindowStart" required>
@@ -75,21 +75,21 @@
       <input type="time" id="secondWindowEnd" [(ngModel)]="timesInfos.second_windows_time_end" name="secondWindowEnd" required>
     </div>
 
-    <div *ngIf="latitude !== null && longitude !== null" style="margin-top: 20px;">
+    <div *ngIf="latitude !== null && longitude !== null" class="coordinates">
       <h3>Coordenadas do Endereço</h3>
       <p>Latitude: {{ latitude }}</p>
       <p>Longitude: {{ longitude }}</p>
     </div>
 
-    <button type="submit">Criar Pedido</button>
+    <button type="submit" class="btn">Criar Pedido</button>
   </form>
 
   <hr>
 
   <!-- Criar Rota -->
-  <div>
+  <div class="form-section">
     <h2>Criar Rota</h2>
-    <form (ngSubmit)="createRoute()">
+    <form (ngSubmit)="createRoute()" class="form">
       <div>
         <label for="routeName">Nome da Rota</label>
         <input type="text" id="routeName" [(ngModel)]="routeInfos.route_name" name="routeName" required>
@@ -107,8 +107,8 @@
       <div>
         <label for="routeAddress">Endereço</label>
         <input type="text" id="routeAddress" [(ngModel)]="routeAddress" name="routeAddress">
-        <button type="button" (click)="finderLatitudeLongitude()">Geocodificar</button>
-        <button type="button" (click)="addAddress()">Adicionar Endereço</button>
+        <button type="button" (click)="finderLatitudeLongitude()" class="btn">Geocodificar</button>
+        <button type="button" (click)="addAddress()" class="btn">Adicionar Endereço</button>
       </div>
 
       <div *ngIf="addresses.length > 0">
@@ -129,24 +129,41 @@
         <input type="time" id="routeTime" [(ngModel)]="routeInfos.route_time" name="routeTime" required>
       </div>
 
-      <button type="submit">Criar Rota</button>
+      <button type="submit" class="btn">Criar Rota</button>
     </form>
   </div>
+  <hr>
+  <!-- Adicionar Pedido a Rota -->
+  <div class="form-section">
+    <h2>Adicionar Pedido a Rota</h2>
+    <form (ngSubmit)="addOrderToRoute()" class="form">
+      <div>
+        <label for="routeId">ID da Rota</label>
+        <input type="text" id="optimizationProblemId" [(ngModel)]="optimizationProblemId" name="optimizationProblemId" required>
+      </div>
 
+      <div>
+        <label for="orderId">ID do Pedido</label>
+        <input type="text" id="orderId" [(ngModel)]="orderId" name="orderId" required>
+      </div>
+
+      <button type="submit" class="btn">Adicionar Pedido</button>
+    </form>
+  </div>
   <hr>
 
   <!-- Geocodificação -->
-  <div>
+  <div class="form-section">
     <h2>Geocodificar Endereço</h2>
-    <form (ngSubmit)="finderLatitudeLongitude()">
+    <form (ngSubmit)="finderLatitudeLongitude()" class="form">
       <div>
         <label for="geocodeAddress">Endereço</label>
         <input type="text" id="geocodeAddress" [(ngModel)]="routeAddress" name="geocodeAddress" required>
       </div>
-      <button type="submit">Geocodificar</button>
+      <button type="submit" class="btn">Geocodificar</button>
     </form>
 
-    <div *ngIf="latitude !== null && longitude !== null" style="margin-top: 20px;">
+    <div *ngIf="latitude !== null && longitude !== null" class="coordinates">
       <h3>Coordenadas do Endereço</h3>
       <p>Latitude: {{ latitude }}</p>
       <p>Longitude: {{ longitude }}</p>

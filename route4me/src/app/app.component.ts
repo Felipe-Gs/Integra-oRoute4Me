@@ -1,14 +1,17 @@
 import { Component } from '@angular/core';
 import { Route4MeService } from './route4me.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
-
 export class AppComponent {
   title = 'Route4Me Integration';
+
+  optimizationProblemId: string = '';
+  orderId: string = '';
 
   originAddress = {
     address: '',
@@ -37,20 +40,18 @@ export class AppComponent {
     second_name: '',
     email: '',
     phone: '',
-
-  }
+  };
 
   loadInfos = {
     pieces: '',
-
-  }
+  };
 
   timesInfos = {
     first_window_time_start: '',
     first_window_time_end: '',
     second_windows_time_start: '',
     second_windows_time_end: '',
-  }
+  };
 
   routeAddress: string = '';
   latitude: number | null = null;
@@ -59,18 +60,30 @@ export class AppComponent {
   routeInfos = {
     route_name: '',
     route_time: '',
-    route_date:'',
-    optimize: 'Distance' // ou time
-  }
+    route_date: '',
+    optimize: 'Distance', // ou time
+  };
 
-  addresses: { address: string; lat: number | null; lng: number | null; is_depot: boolean }[] = [];
+  addresses: {
+    address: string;
+    lat: number | null;
+    lng: number | null;
+    is_depot: boolean;
+  }[] = [];
 
   constructor(private route4MeService: Route4MeService) {}
 
   createOrder() {
-
-    const address_1 = `${this.originAddress.address}, ${this.originAddress.number || ''}, ${this.originAddress.city}, ${this.originAddress.state}, ${this.originAddress.country}`;
-    const address_2 = `${this.destinationAddress.address}, ${this.destinationAddress.number || ''}, ${this.destinationAddress.city}, ${this.destinationAddress.state}, ${this.destinationAddress.country}`;
+    const address_1 = `${this.originAddress.address}, ${
+      this.originAddress.number || ''
+    }, ${this.originAddress.city}, ${this.originAddress.state}, ${
+      this.originAddress.country
+    }`;
+    const address_2 = `${this.destinationAddress.address}, ${
+      this.destinationAddress.number || ''
+    }, ${this.destinationAddress.city}, ${this.destinationAddress.state}, ${
+      this.destinationAddress.country
+    }`;
 
     const EXT_FIELD_first_name = `${this.contactInfos.first_name}`;
     const EXT_FIELD_last_name = `${this.contactInfos.second_name}`;
@@ -79,11 +92,18 @@ export class AppComponent {
 
     const EXT_FIELD_pieces = `${this.loadInfos.pieces}`;
 
-    const local_time_window_start = this.formatTime(this.timesInfos.first_window_time_start);
-    const local_time_window_end = this.formatTime(this.timesInfos.first_window_time_end);
-    const local_time_window_start_2 = this.formatTime(this.timesInfos.second_windows_time_start);
-    const local_time_window_end_2 = this.formatTime(this.timesInfos.second_windows_time_end);
-
+    const local_time_window_start = this.formatTime(
+      this.timesInfos.first_window_time_start
+    );
+    const local_time_window_end = this.formatTime(
+      this.timesInfos.first_window_time_end
+    );
+    const local_time_window_start_2 = this.formatTime(
+      this.timesInfos.second_windows_time_start
+    );
+    const local_time_window_end_2 = this.formatTime(
+      this.timesInfos.second_windows_time_end
+    );
 
     const orderData = {
       address_1: address_1,
@@ -96,34 +116,62 @@ export class AppComponent {
 
       EXT_FIELD_pieces: EXT_FIELD_pieces,
 
-      local_time_window_start: local_time_window_start,
-      local_time_window_end: local_time_window_end,
-      local_time_window_start_2: local_time_window_start_2,
-      local_time_window_end_2: local_time_window_end_2,
-
+      local_time_window_start: this.formatTime(
+        this.timesInfos.first_window_time_start
+      ),
+      local_time_window_end: this.formatTime(
+        this.timesInfos.first_window_time_end
+      ),
+      local_time_window_start_2: this.formatTime(
+        this.timesInfos.second_windows_time_start
+      ),
+      local_time_window_end_2: this.formatTime(
+        this.timesInfos.second_windows_time_end
+      ),
     };
 
-    console.log(orderData);
+    console.log('Dados do pedido:', orderData);
 
     this.route4MeService.createOrder(orderData).subscribe(
       (response) => {
         console.log('Pedido criado com sucesso:', response);
+        alert('Pedido criado com sucesso!');
       },
       (error) => {
         console.error('Erro ao criar pedido:', error);
+        alert('Erro ao criar pedido. Verifique os dados e tente novamente.');
+      }
+    );
+  }
+
+  // adicionar pedido a rota
+  addOrderToRoute() {
+    const optimizationProblemId = this.optimizationProblemId;
+    const orderId = this.orderId;
+    const data = {
+      optimization_problem_id: optimizationProblemId,
+      order_id: orderId,
+    };
+    this.route4MeService.addOrderToRoute(data).subscribe(
+      (response) => {
+        console.log('Pedido adicionado à rota:', response);
+        alert('Pedido adicionado à rota com sucesso!');
+      },
+      (error) => {
+        console.error('Erro ao adicionar pedido à rota:', error);
+        alert(
+          'Erro ao adicionar pedido à rota. Verifique os dados e tente novamente.'
+        );
       }
     );
   }
 
   formatTime(time: string): string {
-
     if (!time) return '';
-
     const timeParts = time.split(':');
     if (timeParts.length === 1) {
       return `${timeParts[0]}:00`;
     }
-
     return time;
   }
 
@@ -133,7 +181,9 @@ export class AppComponent {
         if (response && response[0]) {
           this.latitude = response[0].lat;
           this.longitude = response[0].lng;
-          console.log(`Latitude: ${this.latitude}, Longitude: ${this.longitude}`);
+          console.log(
+            `Latitude: ${this.latitude}, Longitude: ${this.longitude}`
+          );
         } else {
           console.error('Geocoding API não retornou dados de localização');
         }
@@ -145,7 +195,11 @@ export class AppComponent {
   }
 
   addAddress() {
-    if (this.routeAddress && this.latitude !== null && this.longitude !== null) {
+    if (
+      this.routeAddress &&
+      this.latitude !== null &&
+      this.longitude !== null
+    ) {
       this.addresses.push({
         address: this.routeAddress,
         lat: this.latitude,
@@ -153,7 +207,12 @@ export class AppComponent {
         is_depot: this.addresses.length === 0,
       });
 
-      console.log('Endereço adicionado:', this.routeAddress, this.latitude, this.longitude);
+      console.log(
+        'Endereço adicionado:',
+        this.routeAddress,
+        this.latitude,
+        this.longitude
+      );
 
       this.routeAddress = '';
       this.latitude = null;
@@ -171,7 +230,9 @@ export class AppComponent {
         const isDeparture = address.is_depot;
 
         if (isDeparture && this.routeInfos.route_time) {
-          console.log(`Saída as ${this.routeInfos.route_time} do endereço: ${address.address}`);
+          console.log(
+            `Saída as ${this.routeInfos.route_time} do endereço: ${address.address}`
+          );
         }
 
         return {
@@ -191,7 +252,9 @@ export class AppComponent {
 
         if (response && response.optimization_problem_id) {
           const optimizationProblemId = response.optimization_problem_id;
-          alert(`Rota criada com sucesso! ID da Rota: ${optimizationProblemId}`);
+          alert(
+            `Rota criada com sucesso! ID da Rota: ${optimizationProblemId}`
+          );
         } else {
           console.error('Resposta sem optimization_problem_id');
         }
